@@ -15,6 +15,9 @@ struct triangle {
     struct point p3;
 };
 struct pinwheel {
+    float x;
+    float y;
+    float z;
     struct triangle blades[NUM_BLADES];
 };
 
@@ -36,6 +39,17 @@ void translatePinwheel(struct pinwheel *p, float x, float y, float z) {
     for (i = 0; i < NUM_BLADES; i++) {
         translateTriangle(&p->blades[i], x, y, z);
     }
+}
+void setPinwheelPos(struct pinwheel *p, float x, float y, float z) {
+
+    float newx = x - p->x;
+    float newy = y - p->y;
+    float newz = z - p->z;
+
+    translatePinwheel(p, newx, newy, newz);
+    p->x = x;
+    p->y = y;
+    p->z = z;
 }
 void rotateTriangle(struct triangle *tri, float dx, float dy, float dz) {
     // get center of triangle
@@ -128,6 +142,9 @@ void initPinwheel(struct pinwheel *p) {
 
         rotateTriangle(&p->blades[i], 0, 10, -45 * i);
     }
+    p->x = 0;
+    p->y = 0;
+    p->z = 0;
 }
 void printPinwheel(struct pinwheel *p) {
     int i = 0;
@@ -146,11 +163,12 @@ int main(int argc, char **argv)
 
     printf("l p -80. 120. -46.6 1.0 1.0 1.0\n");
     printf("l p 10. -10. 46.6 1.0 1.0 1.0\n");
-    printf("l a .3 .3 .3\n");
+    printf("l a .2 .2 .2\n");
     //printf("m 0. 0.5 1.0 0.0 0.0 0.0 1.0 0.2 0.2 0.2\n", mr, mg, mb);
     //printf("s 0. 0. 60. 5.\n");
 
-    printf("m %f %f %f 0.8 0.8 0.8 0.9 0.6 0.6 0.6\n", mr, mg, mb);
+    printf("m 0.1 0.1 0.1 0.9 0.9 0.9 100 0.9 0.9 0.9\n");
+    printf("t 0 -10. 500 500 -10. -500 -10. 0 -500\n");    
 
     struct pinwheel p0;
     initPinwheel(&p0);
@@ -158,14 +176,16 @@ int main(int argc, char **argv)
     int i = 0;
     float x = 0;
     float y = 0;
+    float z = 20;
     for (i = 0; i < 100; i++) {
         float r,g,b;
-        HSVtoRGB(&r, &g, &b, (i*360/800), 0.9, 0.9);
-        printf("m %f %f %f 0.8 0.8 0.8 100. 0.7 0.7 0.7\n", r, g, b);
+        HSVtoRGB(&r, &g, &b, (i*360/100), 0.9, 0.9);
+        printf("m %f %f %f 0.1 0.1 0.1 0.1 0.1 0.1 0.1\n", r, g, b);
  
-        x = cos(i*2 * PI/180);
-        y = sin(i*2 * PI/180);
-        translatePinwheel(&p0, x, y, -2);
+        x = 3 * cos(i*3 * PI/180);
+        y = 3 * sin(i*3 * PI/180);
+        z -= 1;
+        setPinwheelPos(&p0, x, y, z);
         printPinwheel(&p0);
     }
     return 0;
